@@ -1,25 +1,705 @@
-import logo from './logo.svg';
+import _ from "lodash"
 import './App.css';
+import {useRef, useState} from "react";
+import Data from "./data"
+import traits from "./data/personality_traits.yml"
+import {BrowserRouter, Link, Route, Routes} from "react-router-dom";
+import Db from "./components/db";
+import AppHeader from "./components/appHeader";
+console.log(traits)
+function Input({ label, inputHandler }) {
+  const input = useRef()
+  return (
+    <label>
+      <input placeholder={label} ref={input} type="text" onChange={e => {
+        inputHandler(e)
+      }}/>
+    </label>
+  )
+}
+
+const wantsNeeds = [
+  "knows the end is near",
+  "has a terrible stomach ache"
+]
+
+const secretObstacle = [
+  "is extremely contagious",
+  "has an aversion to all forms of medicine",
+]
+
+const personalityTrait = ["I idolize a particular hero of my faith and constantly refer to that person's deeds and example.",
+                          "I can find common ground between the fiercest enemies, empathizing with them and always working toward peace.",
+                          "I see omens in every event and action. The gods try to speak to us, we just need to listen.",
+                          "Nothing can shake my optimistic attitude.",
+                          "I quote (or misquote) the sacred texts and proverbs in almost every situation.",
+                          "I am tolerant (or intolerant) of other faiths and respect (or condemn) the worship of other gods.",
+                          "I've enjoyed fine food, drink, and high society among my temple's elite. Rough living grates on me.",
+                          "I've spent so long in the temple that I have little practical experience dealing with people in the outside world.",
+                          "I fall in and out of love easily, and am always pursuing someone.",
+                          "I have a joke for every occasion, especially occasions where humor is inappropriate.",
+                          "Flattery is my preferred trick for getting what I want.",
+                          "I'm a born gambler who can't resist taking a risk for a potential payoff.",
+                          "I lie about almost everything, even when there's no good reason to.",
+                          "Sarcasm and insults are my weapons of choice.",
+                          "I keep multiple holy symbols on me and invoke whatever deity might come in useful at any given moment.",
+                          "I pocket anything I see that might have some value.",
+                          "I always have plan for what to do when things go wrong.",
+                          "I am always calm, no matter what the situation. I never raise my voice or let my emotions control me.",
+                          "The first thing I do in a new place is note the locations of everything valuable--or where such things could be hidden.",
+                          "I would rather make a new friend than a new enemy.",
+                          "I am incredibly slow to trust. Those who seem the fairest often have the most to hide.",
+                          "I don't pay attention to the risks in a situation. Never tell me the odds.",
+                          "The best way to get me to do something is to tell me I can't do it.",
+                          "I blow up at the slightest insult.",
+                          "I know a story relevant to almost every situation.",
+                          "Whenever I come to a new place, I collect local rumors and spread gossip.",
+                          "I'm a hopeless romantic, always searching for that 'special someone'.",
+                          "Nobody stays angry at me or around me for long, since I can defuse any amount of tension.",
+                          "I love a good insult, even one directed at me.",
+                          "I get bitter if I'm not the center of attention.",
+                          "I'll settle for nothing less than perfection.",
+                          "I change my mood or my mind as quickly as I change key in a song.",
+                          "I judge people by their actions, not their words.",
+                          "If someone is in trouble, I'm always willing to lend help.",
+                          "When I set my mind to something, I follow through no matter what gets in my way.",
+                          "I have a strong sense of fair play and always try to find the most equitable solution to arguments.",
+                          "I'm confident in my own abilities and do what I can to instill confidence in others.",
+                          "Thinking is for other people. I prefer action.",
+                          "I misuse long words in an attempt to sound smarter.",
+                          "I get bored easily. When am I going to get on with my destiny.",
+                          "I believe that everything worth doing is worth doing right. I can't help it--I'm a perfectionist.",
+                          "I'm a snob who looks down on those who can't appreciate fine art.",
+                          "I always want to know how things work and what makes people tick.",
+                          "I'm full of witty aphorisms and have a proverb for every occasion.",
+                          "I'm rude to people who lack my commitment to hard work and fair play.",
+                          "I like to talk at length about my profession.",
+                          "I don't part with my money easily and will haggle tirelessly to get the best deal possible.",
+                          "I'm well known for my work, and I want to make sure everyone appreciates it. I'm always taken aback when people haven't heard of me.",
+                          "I've been isolated for so long that I rarely speak, preferring gestures and the occasional grunt.",
+                          "I am utterly serene, even in the face of disaster.",
+                          "The leader of my community has something wise to say on every topic, and I am eager to share that wisdom.",
+                          "I feel tremendous empathy for all who suffer.",
+                          "I'm oblivious to etiquette and social expectations.",
+                          "I connect everything that happens to me to a grand cosmic plan.",
+                          "I often get lost in my own thoughts and contemplations, becoming oblivious to my surroundings.",
+                          "I am working on a grand philosophical theory and love sharing my ideas.",
+                          "My eloquent flattery makes everyone I talk to feel like the most wonderful and important person in the world.",
+                          "The common folk love me for my kindness and generosity.",
+                          "No one could doubt by looking at my regal bearing that I am a cut above the unwashed masses.",
+                          "I take great pains to always look my best and follow the latest fashions.",
+                          "I don't like to get my hands dirty, and I won't be caught dead in unsuitable accommodations.",
+                          "Despite my birth, I do not place myself above other folk. We all have the same blood.",
+                          "My favor, once lost, is lost forever.",
+                          "If you do me an injury, I will crush you, ruin your name, and salt your fields.",
+                          "I'm driven by a wanderlust that led me away from home.",
+                          "I watch over my friends as if they were a litter of newborn pups.",
+                          "I once ran twenty-five miles without stopping to warn my clan of an approaching orc horde. I'd do it again if I had to.",
+                          "I have a lesson for every situation, drawn from observing nature.",
+                          "I place no stock in wealthy or well-mannered folk. Money and manners won't save you from a hungry owlbear.",
+                          "I'm always picking things up, absently fiddling with them, and sometimes accidentally breaking them.",
+                          "I feel far more comfortable around animals than people.",
+                          "I was, in fact, raised by wolves.",
+                          "I use polysyllabic words to convey the impression of great erudition.",
+                          "I've read every book in the world's greatest libraries--or like to boast that I have.",
+                          "I'm used to helping out those who aren't as smart as I am, and I patiently explain anything and everything to others.",
+                          "There's nothing I like more than a good mystery.",
+                          "I'm willing to listen to every side of an argument before I make my own judgment.",
+                          "I...speak...slowly...when talking...to idiots...which...almost...everyone...is...compared ...to me.",
+                          "I am horribly, horribly awkward in social situations.",
+                          "I'm convinced that people are always trying to steal my secrets.",
+                          "My friends know they can rely on me, no matter what.",
+                          "I work hard so that I can play hard when the work is done.",
+                          "I enjoy sailing into new ports and making new friends over a flagon of ale.",
+                          "I stretch the truth for the sake of a good story.",
+                          "To me, a tavern brawl is a nice way to get to know a new city.",
+                          "I never pass up a friendly wager.",
+                          "My language is as foul as an otyugh nest.",
+                          "I like a job well done, especially if I can convince someone else to do it.",
+                          "I'm always polite and respectful.",
+                          "I'm haunted by memories of war. I can't get the images of violence out of my mind.",
+                          "I've lost too many friends, and I'm slow to make new ones.",
+                          "I'm full of inspiring and cautionary tales from my military experience relevant to almost every combat situation.",
+                          "I can stare down a hellhound without flinching.",
+                          "I enjoy being strong and like breaking things.",
+                          "I have a crude sense of humor.",
+                          "I face problems head-on. A simple direct solution is the best path to success.",
+                          "I hide scraps of food and trinkets away in my pockets.",
+                          "I ask a lot of questions.",
+                          "I like to squeeze into small places where no one else can get to me.",
+                          "I sleep with my back to a wall or tree, with everything I own wrapped in a bundle in my arms.",
+                          "I eat like a pig and have bad manners.",
+                          "I think anyone who's nice to me is hiding evil intent.",
+                          "I don't like to bathe.",
+                          "I bluntly say what other people are hinting or hiding.",]
+
+const personalityTraitTwo = ["I believe fairies are always around, watching.",
+                             "I am fascinated with religion.",
+                             "I am interested in the history of Vampires.",
+                             "I have a deathly fear of Kobolds.",
+                             "I am annoyed by nobility.",
+                             "I am interested in odd trinkets.",
+                             "I have a stamp collection.",
+                             "I have a fasination with dragonflies.",
+                             "I am afraid of any type of fish.",
+                             "I have a pet bird.",
+                             "I have a pet dog.",
+                             "I have a pet cat.",
+                             "I am interested in traveling far away one day.",
+                             "I am deathly afraid of snakes.",
+                             "I am terrified of the ocean.",
+                             "I am fascinated with the ocean.",
+                             "I have an obsession with old clothing.",
+                             "I love a good joke.",
+                             "I love playing music.",
+                             "I am a fantastic musician.",
+                             "I am a terrible musician.",
+                             "I am prone to nail biting.",
+                             "I fidgets all the time.",
+                             "I am always chewing on something.",
+                             "I hum all the time.",
+                             "I am quick to forgive.",
+                             "I am quick to forget names.",
+                             "I idolize a hero of my faith.",
+                             "I can find common ground between the fiercest foe.",
+                             "I see omens in every event or action.",
+                             "Nothing can shake my optimistic attitude.",
+                             "I quote sacred texts and proverbs in almost every situation.",
+                             "I enjoy fine wine a little too much.",
+                             "I enjoy being among high society.",
+                             "I am a born gambler.",
+                             "I lie about almost everything.",
+                             "I am very secretive.",
+                             "I am very open about all aspects of life.",
+                             "I deal out sarcasm constantly.",
+                             "I keep multiple holy relics on me.",
+                             "I pocket anything that might have some value to it.",
+                             "I am incredibly slow to trust.",
+                             "I blow up at the slightest insult.",
+                             "I do not pay attention to anything other people are saying.",
+                             "I have a story for almost every situation.",
+                             "I love to gossip about the town.",
+                             "I am a hopeless romantic.",
+                             "I settle for nothing less than perfection.",
+                             "I am a snob about most things.",
+                             "I hate gnomes with a passion.",
+                             "I hate kobolds with a passion.",
+                             "I am very rude to poor people.",
+                             "I am very rude to rich people.",
+                             "I am a suckup to anyone who looks strong.",
+                             "I am always bored with the situation at hand.",
+                             "I am always drunk.",
+                             "I am a bookworm.",
+                             "I am incredibly bossy to people shorter than them.",
+                             "I am very calculating in any situation.",
+                             "I am very creepy to other people.",
+                             "I am a compulsive liar.",
+                             "I collect small animals.",
+                             "I am fanatically loyal.",
+                             "I am a fast-talker.",
+                             "I am illiterate.",
+                             "I am incredibly persistent.",
+                             "I am very into crystals/gems.",
+                             "I am a jack-of-all-trades.",
+                             "I am incredibly clumbsy.",
+                             "I am a mad genius.",
+                             "I am a maniac.",
+                             "I am incredibly paranoid all the time.",
+                             "I am very well-traveled.",
+                             "I am a fantastic musician.",
+                             "I am incredibly artistic.",
+                             "I am very heartless.",
+                             "I am heartbroken.",
+                             "I am very hard-working.",
+                             "I am incredibly clever in most situations.",
+                             "I am an amazing singer.",
+                             "I am deathly afraid of orcs.",
+                             "I am deathly afraid of the ocean.",
+                             "I am deathly afraid of the forest.",
+                             "I am deathly afraid of ghosts.",
+                             "I am very careless.",
+                             "I am very diplomatic.",
+                             "I am very cheerful.",
+                             "I am very brave and full of courage.",
+                             "I am always irritable.",
+                             "I am very greedy.",
+                             "I am incredibly generous.",
+                             "I am very barbaric.",
+                             "I am very friendly and kind-hearted.",
+                             "I am very quiet.",
+                             "I love collecting old artifacts.",
+                             "I love to fish.",
+                             "I love to collect herbs.",
+                             "I love to travel.",
+                             "I wear too much jewelry.",
+                             "I am always carrying a book, or multiple.",
+                             "I have an unhealthy obsession with food.",
+                             "I pace back and forth when thinking.",
+                             "I am a complete germophobe.",
+                             "I mumble things constantly.",
+                             "I wear thick homemade glasses.",
+                             "I have a fear of insects.",
+                             "I am a terrible liar.",
+                             "I always knows which direction they are facing.",
+                             "I recite old bard poems whenever the chance arises.",
+                             "I have a photographic memory.",
+                             "I am afraid of fire.",
+                             "I cant swim.",
+                             "I am paranoid about every single thing.",
+                             "I have an unhealthy obsession with symmetry.",
+                             "I am haunted by a ghost.",
+                             "I was once abandoned by someone close.",
+                             "I am able to invent anything with limited supplies.",
+                             "I am extremely religious.",
+                             "I am unforgivably selfish.",
+                             "I absolutely HATE gnomes.",
+                             "I collect interesting rocks/gems.",
+                             "I was abused badly as a child.",
+                             "I was orphaned at a young age, due to a bandit attack, and lived with distant relatives.",
+                             "I was very sickly and weak as a child.",
+                             "I was mocked and teased constantly as a child.",
+                             "I was forced to move around alot as a child because my father was in the military.",
+                             "I resent my parents and upbringing to this day.",
+                             "I always felt very out of place as a child.",
+                             "I was mistreated by my stepmother/father.",
+                             "I was regarded as weird by everyone as a child.",
+                             "I resented school and ran away as a child.",
+                             "I was always known as a dreamer.",
+                             "I was quite bright growing up and given an amazing education.",
+                             "I am very cold and deliberate.",
+                             "I am known for good manners and politeness.",
+                             "I am known to run away from problems.",
+                             "I am incredibly proficient in art.",
+                             "I am known to be very rude and disobedient to family.",
+                             "I was very religious from a young age.",
+                             "I spent summers visiting relatives on the countryside as a child.",
+                             "I spent winters in the city with friends of my parents as a child.",
+                             "I intermittently worked for a distant relative.",
+                             "I was always sent to a nearby village during the harvest growing up.",
+                             "I am always trying to impress everyone.",
+                             "I often found a reason to travel growing up.",
+                             "I ran away alot as a child.",
+                             "I was always considered somewhat slow.",
+                             "I always felt strange reaching out to people.",
+                             "I was recently driven from my ancestral home.",
+                             "I have never had a steady home.",
+                             "I lived a very comfortable life so far.",
+                             "I feel very comfortable in the communty.",
+                             "I am very proud of local bard.",
+                             "I feel like something strange happened in upbringing, but cant remember why.",
+                             "I gets a special feeling visiting the homeland.",
+                             "I once spent a few years in the forest for work.",
+                             "I once spent a few years in the desert trying to find a family member who fled there.",
+                             "I once spent a few months hiding out in the forest trying to escape a stalker.",
+                             "I am currently in town working on paying a debt.",
+                             "I am trying to afford to travel to a large city to seek scholarly advice.",
+                             "I once spent a few years in a mental institution.",
+                             "I once spent a few years in prison.",
+                             "I once spent a few years in slavery.",
+                             "I nurture a lifelong dream to live in another country.",
+                             "I nurture a lifelong dream to marry someone untouchable due to class.",
+                             "I nurture a lifelong dream to move to another city.",
+                             "I nurture a lifelong dream to live on the sea.",
+                             "I nurture a lifelong dream to live in the mountains.",
+                             "I nurture a lifelong dream to pick up a different profession.",
+                             "I nurture a lifelong dream to buy back the family farm.",
+                             "I nurture a lifelong dream to buy back a family heirloom.",
+                             "I nurture a lifelong dream to visit friends/relatives far away.",
+                             "I nurture a lifelong dream to visit a settlement of elves.",
+                             "I nurture a lifelong dream to visit a settlement of dwarves.",
+                             "I nurture a lifelong dream to visit a settlement of halflings.",
+                             "I nurture a lifelong dream to visit a settlement of kobolds.",
+                             "I nurture a lifelong dream to visit a settlement of orcs.",
+                             "I nurture a lifelong dream to say sorry to someone hurt by them.",
+                             "I have fond memories of a nearby lake.",
+                             "I have fond memories of a nearby river.",
+                             "I have fond memories of a nearby town.",
+                             "I have fond memories of a nearby village.",
+                             "I have fond memories of a nearby forest.",
+                             "I have fond memories of a nearby farm.",
+                             "I have fond memories of a nearby ruin.",
+                             "I have fond memories of a nearby field.",
+                             "I have fond memories of a nearby temple.",
+                             "I have fond memories of a nearby shrine.",
+                             "I have bad memories of a nearby lake.",
+                             "I have bad memories of a nearby river.",
+                             "I have bad memories of a nearby town.",
+                             "I have bad memories of a nearby village.",
+                             "I have bad memories of a nearby forest.",
+                             "I have bad memories of a nearby farm.",
+                             "I have bad memories of a nearby ruin.",
+                             "I have bad memories of a nearby field.",
+                             "I have bad memories of a nearby temple.",
+                             "I have bad memories of a nearby shrine.",
+                             "I was born by a nearby lake.",
+                             "I was born by a nearby river.",
+                             "I was born by in nearby town.",
+                             "I was born by in a nearby village.",
+                             "I was born by in a nearby forest.",
+                             "I was born by in a nearby farm.",
+                             "I was born by in a nearby ruin.",
+                             "I was born by in a nearby field.",
+                             "I was born by in a nearby temple.",
+                             "I know a nearby lake to be haunted.",
+                             "I know a nearby river to be haunted.",
+                             "I know a nearby town to be haunted.",
+                             "I know a nearby village to be haunted.",
+                             "I know a nearby forest to be haunted.",
+                             "I know a nearby farm to be haunted.",
+                             "I know a nearby ruin to be haunted.",
+                             "I know a nearby field to be haunted.",
+                             "I know a nearby temple to be haunted.",
+                             "I know a nearby shrine to be haunted.",
+                             "I had a mother who was killed and eaten by a dragon.",
+                             "I had a father who was killed and eaten by dragon.",
+                             "I had a sister who was killed and eaten by dragon.",
+                             "I had a brother who was killed and eaten by dragon.",
+                             "I had an aunt who was killed and eaten by dragon.",
+                             "I had an uncle who was killed and eaten by dragon.",
+                             "I had a niece who was killed and eaten by dragon.",
+                             "I had a nephew who was killed and eaten by dragon.",
+                             "I had a mother who was hunted through the forest by goblins.",
+                             "I had a father who was hunted through the forest by goblins.",
+                             "I had a sister who was hunted through the forest by goblins.",
+                             "I had a brother who was hunted through the forest by goblins.",
+                             "I had an aunt who was hunted through the forest by goblins.",
+                             "I had an uncle who was hunted through the forest by goblins.",
+                             "I had a niece who was hunted through the forest by goblins.",
+                             "I had a nephew who was hunted through the forest by goblins.",
+                             "I had a mother who was robbed and killed by outlaws.",
+                             "I had a father who was robbed and killed by outlaws.",
+                             "I had a sister who was robbed and killed by outlaws.",
+                             "I had a brother who was robbed and killed by outlaws.",
+                             "I had an aunt who was robbed and killed by outlaws.",
+                             "I had an uncle who was robbed and killed by outlaws.",
+                             "I had a niece who was robbed and killed by outlaws.",
+                             "I had a nephew who was robbed and killed by outlaws.",
+                             "I had a mother who was rumored to have had dealings with smugglers.",
+                             "I had a father who was rumored to have had dealings with smugglers.",
+                             "I had a sister who was rumored to have had dealings with smugglers.",
+                             "I had a brother who was rumored to have had dealings with smugglers.",
+                             "I had an aunt who was rumored to have had dealings with smugglers.",
+                             "I had an uncle who was rumored to have had dealings with smugglers.",
+                             "I had a niece who was rumored to have had dealings with smugglers.",
+                             "I had a nephew who was rumored to have had dealings with smugglers.",
+                             "I have a mother who is an important figure in a nearby town.",
+                             "I have a father who is an important figure in a nearby town.",
+                             "I have a sister who is an important figure in a nearby town.",
+                             "I have a brother who is an important figure in a nearby town.",
+                             "I have an aunt who is an important figure in a nearby town.",
+                             "I have an uncle who is an important figure in a nearby town.",
+                             "I have a niece who is an important figure in a nearby town.",
+                             "I have a nephew who is an important figure in a nearby town.",
+                             "I had a mother who moved after accusations of witchcraft.",
+                             "I had a father who moved after accusations of witchcraft.",
+                             "I had a sister who moved after accusations of witchcraft.",
+                             "I had a brother who moved after accusations of witchcraft.",
+                             "I had an aunt who moved after accusations of witchcraft.",
+                             "I had an uncle who moved after accusations of witchcraft.",
+                             "I had a niece who moved after accusations of witchcraft.",
+                             "I had a nephew who moved after accusations of witchcraft.",
+                             "I have a mother who is wasting away from a disease.",
+                             "I have a father who is wasting away from a disease.",
+                             "I have a sister who is wasting away from a disease.",
+                             "I have a brother who is wasting away from a disease.",
+                             "I have an aunt who is wasting away from a disease.",
+                             "I have an uncle who is wasting away from a disease.",
+                             "I have a niece who is wasting away from a disease.",
+                             "I have a nephew who is wasting away from a disease.",
+                             "I owe alot of money to the mob.",
+                             "I owe alot of money to a local thieves guild.",
+                             "I owe alot of money to local drug dealers.",
+                             "I am ashamed of family ancestry.",
+                             "I feel insignificant compared to ancestors.",
+                             "I am something of a genealogist.",
+                             "I am unduly boastful about family blood-line.",
+                             "I mourn the greater days of my family lineage.",
+                             "I thinks the family deserves a better reputation.",
+                             "I dreams of being knighted.",
+                             "I have illicitly adopted some sort of title or heraldry.",
+                             "I have been falsely accused of witchcraft.",
+                             "I am currently on the run from the law.",
+                             "I am currently on the run from a local thieves guild.",
+                             "I am currently on the run from a vampire.",
+                             "I am secretly a demon.",
+                             "I am secretly a vampire.",
+                             "I am never truthful about anything.",
+                             "I am the black sheep of the family.",
+                             "I need help supporting the family.",
+                             "I need medicine/cure for a parent.",
+                             "I need medicine/cure for a child.",
+                             "I need information/help finding a missing sibling.",
+                             "I need help retrieving a stolen heirloom.",
+                             "I need help defending the family homeland from an invader.",
+                             "I need to find a missing parent before its too late.",
+                             "I need 50g to help pay a debt.",
+                             "I am trying to take someone to a local temple.",
+                             "I am trying to find a date for a wedding coming up.",
+                             "I need help forging a document.",
+                             "I need help forging a deed.",
+                             "I need to clear the family name.",
+                             "I believe that your birth shouldnt define your life.",
+                             "I believe that nobility exists to help and protect.",
+                             "I have incredibly wealthy parents.",
+                             "I have incredily poor parents.",
+                             "I believe that lower classes should keep in their place.",
+                             "I believe that peasantry is the backbone of society.",
+                             "I believe that guilds and societies need to be checked.",
+                             "I believe that religious cults and orders are too influential.",
+                             "I believe the government needs a revolution.",
+                             "I believe that the King/Queen/Mayor should look to the needs of the little people.",
+                             "I believe that the King/Queen/Mayor has lost too much power to the Electors.",
+                             "I believe that the King/Queen/Mayor is a demigod who should be worshipped.",
+                             "I believe that the King/Queen/Mayor doesnt care about normal folks.",
+                             "I believe that the King/Queen/Mayor must unite with others against external threats.",
+                             "I believe that the King/Queen/Mayor should be assassinated.",
+                             "I believe that the King/Queen/Mayor is the target of a vast conspiracy.",
+                             "I believe that the King/Queen/Mayor should take steps to ensure his successors.",
+                             "I greatly distrust physicians.",
+                             "I greatly distrust merchants.",
+                             "I greatly distrust politicians.",
+                             "I greatly distrust lawyers and bureaucrats.",
+                             "I greatly distrust priests of all kinds.",
+                             "I greatly distrust scholars, students, and scribes.",
+                             "I greatly distrust watchmen and roadwardens.",
+                             "I greatly distrust peasants.",
+                             "I greatly distrust wealthy people.",
+                             "I once was saved by a powerful wizard.",
+                             "I believe that all heretics and cultists should be burned at the stake.",
+                             "I believe that only priests should use magic.",
+                             "I believe that the Colleges of Magic only attract hordes of enemies.",
+                             "I wants to join the military.",
+                             "I believe that all wizards fear garlic and silver.",
+                             "I believe that you should never look directly at a wizard.",
+                             "I suffer from a bad skin disease.",
+                             "I have bad fits of violent coughing.",
+                             "I am covered in lice/fleas.",
+                             "I have a horrible limp.",
+                             "I am currently suffering from the mother of all hangovers.",
+                             "I have a bad wound that needs attention.",
+                             "I eagerly long for the first day of summer.",
+                             "I eagerly long for winter.",
+                             "I have been having terrible dreams about the end of the world.",
+                             "I have been having bad dreams about an upsetting childhood memory.",
+                             "I have been having bad dreams about a face they cant place.",
+                             "I have been having restless sleep recently.",
+                             "I have been haunted by a reoccuring dream.",
+                             "I am being haunted by a ghost.",
+                             "I am mourning the loss of someone.",
+                             "I am particularly happy today.",
+                             "I feel harmonic and spiritually refreshed.",
+                             "I swore to never drink alcohol again.",
+                             "I swore to keep mouth shut and ears open.",
+                             "I swore to get even on a local criminal organization.",
+                             "I swore to get even with a watchman who wronged them.",
+                             "I swore to get back in shape.",
+                             "I swore to let the family know they are okay.",
+                             "I swore to make the best out of any situation.",
+                             "I was once employed by a local noble.",
+                             "I was once employed by a local inn-keeper.",
+                             "I was once employed by the military.",
+                             "I was once employed by a religious order.",
+                             "I was once part of the local law enforcement.",
+                             "I was once a smuggler.",
+                             "I was once a bandit.",
+                             "I hold a grudge against one of the Player's family members.",
+                             "I am always honor bound.",
+                             "I am exceedingly greedy.",
+                             "I will protect the bloodline at all costs.",
+                             "I will satisfy a burning bloodlust no matter the cost.",
+                             "I want to bring anarchy to the world.",
+                             "I am a gambler in all aspects of life.",
+                             "I am a stalwart patriot.",
+                             "I am a hopeless romantic.",
+                             "I am a hopeless dreamer.",
+                             "I have a soft spot for furry little animals.",
+                             "I have a soft spot for small children.",
+                             "I have a soft spot for the opposite sex.",
+                             "I have a soft spot for artists and musicians.",
+                             "I have a soft spot for the elderly.",
+                             "I have a soft spot for outcasts and beggars.",
+                             "I have a soft spot for military veterans.",
+                             "I have a soft spot for Dwarves.",
+                             "I have a soft spot for Elves.",
+                             "I have a soft spot for Halflings.",
+                             "I have a soft spot for Kobolds.",
+                             "I am known around town as a stubborn person.",
+                             "I am known around town as a humble person.",
+                             "I am known around town as a compassionate person.",
+                             "I am very flirtacious around the opposite sex.",
+                             "I am very uneasy around the opposite sex.",
+                             "I am always drunk.",
+                             "I am currently repenting for a very real sin.",
+                             "I am hoping to get some peace of mind by visiting a nearby temple.",
+                             "I believe in the power of the gods.",
+                             "I am adamantly devoted to faith.",
+                             "I trust in creeds rather than faith.",
+                             "I think religion is evil.",
+                             "I pray before every meal.",
+                             "I pray at regular intervals during the day.",
+                             "I was once the victim of a cult, and aims to get revenge.",
+                             "I worry constantly about dying.",
+                             "I don't like crossing open water.",
+                             "I think cats are heralds of doom and defeat.",
+                             "I think seeing a dead person brings ill fortune.",
+                             "I think looking a stranger in the eyes brings bad luck.",
+                             "I have many contacts in the Merchants Guild.",
+                             "I have many contacts in the Metalworkers Guild.",
+                             "I recently befriended a jittery messenger from a nearby town.",
+                             "I recently befriended a fat and messy slob at a bar.",
+                             "I recently befriended a corrupt army captain.",
+                             "I think people from the country are all inbred hillbillies.",
+                             "I had a good friend who is being held captive.",
+                             "I had a good friend who is now a pile of ashes and charred bones.",
+                             "I had a good friend who is now an outlaw.",
+                             "I am currently residing in a nearby inn for a few weeks.",
+                             "I am currently residing in a nearby temple for a while.",
+                             "I am currently residing in a nearby condemned house.",
+                             "I am currently residing in the woods outside of town.",
+                             "I have recently made enemies with a corrupt military general.",
+                             "I have recently made enemies with a tax collector.",
+                             "I have recently made enemies with a bossy Guildsman.",
+                             "I have recently made enemies with a scribe.",
+                             "I have recently made enemies with a noble.",
+                             "I am known as a great friend.",
+                             "I am very loyal to nobility.",
+                             "I once betrayed a cult.",
+                             "I once betrayed a close family friend.",
+                             "I once betrayed an employer or business associate.",
+                             "I am constantly training for something.",
+                             "I volunteer at the local tavern.",
+                             "I volunteer at a local orphanage.",
+                             "I am known to have a very short temper.",
+                             "I have a large collection of clocks.",
+                             "I am known to make things with gunpowder.",
+                             "I am currently writing a book.",
+                             "I am currently learning to paint.",
+                             "I will never go near a burial ground.",
+                             "I am known to frequent the graveyard.",
+                             "I am very appreciative of good carpenters.",
+                             "I am very impressed by engineers.",
+                             "I am very impressed by magic-users.",
+                             "I am known for being a great fighter.",
+                             "I am always seen with a beer in each hand.",
+                             "I am known to meditate for hours a day.",]
+
+const genStats = () => {
+  const getStat = () => _.sample([6,7,8,8,9,9,9,10,10,10,10,10,11,11,11,11,12,12,12,13,13,14,15,16,17])
+  return {
+    str: getStat(),
+    dex: getStat(),
+    con: getStat(),
+    int: getStat(),
+    wis: getStat(),
+    cha: getStat(),
+  }
+}
+
+const genNPC = () => {
+  return {
+    fName: _.sample(Data.FName),
+    lName: _.sample(Data.LName),
+    desc: _.sample(Data.Desc),
+    stats: {
+      ...genStats()
+    },
+    wantsNeeds: _.sample(wantsNeeds),
+    secretObstacle: _.sample(secretObstacle),
+    complexion: _.sample(Data.Complexion),
+    pTrait1: _.sample(personalityTrait),
+    pTrait2: _.sample(personalityTraitTwo),
+    profession: _.sample(Data.Profession) + " " + _.sample(Data.Profession2),
+    hairColor: _.sample(Data.HairColor),
+  }
+}
+
+const nav = [
+  {to:"home", e: <Home />},
+  {to:"npc", e: <NpcGen />},
+  {to:"db", e: <Db />},
+]
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+    <BrowserRouter>
+      <header>
+        <h1>.gen</h1>
       </header>
-    </div>
+      <AppHeader nav={nav}/>
+      <Routes>
+        <Route path="/">
+          {nav.map(n => <Route key={n.to} path={`/${n.to}/*`} element={n.e} />)}
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
+}
+function Home() {
+  return (
+    <h1>Home</h1>
+  )
+}
+
+function NpcGen() {
+  const [npc, setNpc] = useState(genNPC())
+
+  const generateNPC = () => {
+    setNpc(genNPC())
+  }
+
+  function Stat({type, number}) {
+    return (
+      <>
+        <dt>{type}</dt>
+        <dd>{number} (<span className="stats-mod">{statsMod(number)})</span></dd>
+      </>
+    )
+  }
+  const statsMod = stat => {
+    const mod = Math.floor((stat-10)/2);
+    return mod > 0 ? `+${mod}` : mod
+  }
+  return (
+    <>
+      <button onClick={generateNPC}>Generate NPC</button>
+      <header>
+        <h1>{npc.fName} {npc.lName}</h1>
+      </header>
+      <section className="stats">
+        <h2>Stats</h2>
+        <dl>
+          {Object.keys(npc.stats).map(type => <Stat key={type} type={type} number={npc.stats[type]}/>)}
+        </dl>
+      </section>
+      <section className="attributes">
+        <dl>
+          <dt>Complexion</dt>
+          <dd>{npc.complexion}</dd>
+          <dt>Hair Color</dt>
+          <dd>{npc.hairColor}</dd>
+          <dt>Profession</dt>
+          <dd>{npc.profession}</dd>
+        </dl>
+
+      </section>
+      <section>
+        <strong>{npc.fName}</strong>, {npc.desc}.
+        <p>{npc.fName} is {npc.profession}</p>
+      </section>
+      <section>
+        <p>{npc.wantsNeeds}</p>
+        <p>{npc.pTrait1}</p>
+        <p>{npc.pTrait2}</p>
+      </section>
+      <section>
+        <h2>Secrets/Obstacle</h2>
+        {npc.secretObstacle}
+      </section>
+      <footer>
+
+      </footer>
+    </>
+  )
 }
 
 export default App;

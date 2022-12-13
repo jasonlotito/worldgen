@@ -1,0 +1,140 @@
+{
+  "haircolor": [
+    {
+      "id": 1,
+      "color": "black"
+    },
+    {
+      "id": 2,
+      "color": "brown"
+    },
+    {
+      "id": 3,
+      "color": "dark brown"
+    },
+    {
+      "id": 4,
+      "color": "dark chestnut"
+    },
+    {
+      "id": 5,
+      "color": "dark ash brown"
+    },
+    {
+      "id": 6,
+      "color": "medium brown"
+    },
+    {
+      "id": 7,
+      "color": "medium chestnut brown"
+    },
+    {
+      "id": 8,
+      "color": "medium ash brown"
+    },
+    {
+      "id": 9,
+      "color": "light golden brown"
+    },
+    {
+      "id": 10,
+      "color": "dark golden brown"
+    },
+    {
+      "id": 11,
+      "color": "light chestnut brown"
+    },
+    {
+      "id": 12,
+      "color": "wheat blonde"
+    },
+    {
+      "id": 13,
+      "color": "honey blonde"
+    },
+    {
+      "id": 14,
+      "color": "light ash brown"
+    },
+    {
+      "id": 15,
+      "color": "light blonde"
+    },
+    {
+      "id": 16,
+      "color": "golden blonde"
+    },
+    {
+      "id": 17,
+      "color": "light blonde"
+    },
+    {
+      "id": 18,
+      "color": "strawberry blonde"
+    },
+    {
+      "id": 19,
+      "color": "light copper blonde"
+    },
+    {
+      "id": 20,
+      "color": "light auburn"
+    },
+    {
+      "id": 21,
+      "color": "medium auburn"
+    },
+    {
+      "id": 22,
+      "color": "bright copper brown"
+    },
+    {
+      "id": 23,
+      "color": "mahogany"
+    },
+    {
+      "id": 24,
+      "color": "copper chestnut"
+    },
+    {
+      "id": 25,
+      "color": "dark auburn"
+    },
+    {
+      "id": 26,
+      "color": "dark wine"
+    },
+    {
+      "id": 27,
+      "color": "mixed blond/ash"
+    },
+    {
+      "id": 28,
+      "color": "mixed blonde/copper"
+    },
+    {
+      "id": 29,
+      "color": "mixed brown/auburn"
+    },
+    {
+      "id": 30,
+      "color": "mixed wind/dark brown"
+    },
+    {
+      "id": 31,
+      "color": "purple"
+    }
+  ],
+  "eyecolor": [
+    {
+      "id": 1,
+      "color": "brown"
+    }
+  ],
+  "species": [
+    {
+      "id": 1,
+      "name": "human"
+    }
+  ]
+}

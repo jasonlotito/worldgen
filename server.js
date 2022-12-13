@@ -1,9 +1,9 @@
-const express = require('express')
-const app = express()
+const jsonServer = require('json-server')
+const app = jsonServer.create()
 const port = 3010
 const fs = require('fs')
 const bodyParser = require('body-parser')
-
+const router = jsonServer.router('./data/db.json')
 app.use(bodyParser.json())
 
 class JsonSync {
